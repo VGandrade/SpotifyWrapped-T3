@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.conf import settings
+from music_controller.settings import SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REDIRECT_URI
 from .models import SpotifyAccount, SpotifyWrap
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -10,9 +10,9 @@ def spotify_login(request):
     # Redirect user to Spotify's authorization page
     auth_url = (
         'https://accounts.spotify.com/authorize'
-        f"?client_id={settings.SPOTIFY_CLIENT_ID}"
+        f"?client_id={SPOTIFY_CLIENT_ID}"
         "&response_type=code"
-        f"&redirect_uri={settings.SPOTIFY_REDIRECT_URI}"
+        f"&redirect_uri={SPOTIFY_REDIRECT_URI}"
         "&scope=user-top-read"
     )
     return redirect(auth_url)
@@ -24,9 +24,9 @@ def spotify_callback(request):
     response = requests.post(token_url, data={
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': settings.SPOTIFY_REDIRECT_URI,
-        'client_id': settings.SPOTIFY_CLIENT_ID,
-        'client_secret': settings.SPOTIFY_CLIENT_SECRET,
+        'redirect_uri': SPOTIFY_REDIRECT_URI,
+        'client_id': SPOTIFY_CLIENT_ID,
+        'client_secret': SPOTIFY_CLIENT_SECRET,
     })
     response_data = response.json()
     access_token = response_data['access_token']
@@ -68,8 +68,8 @@ def refresh_token(spotify_account):
     response = requests.post(token_url, data={
         'grant_type': 'refresh_token',
         'refresh_token': spotify_account.refresh_token,
-        'client_id': settings.SPOTIFY_CLIENT_ID,
-        'client_secret': settings.SPOTIFY_CLIENT_SECRET,
+        'client_id': SPOTIFY_CLIENT_ID,
+        'client_secret': SPOTIFY_CLIENT_SECRET,
     })
     response_data = response.json()
     spotify_account.access_token = response_data['access_token']
